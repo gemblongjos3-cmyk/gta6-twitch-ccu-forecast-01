@@ -75,8 +75,9 @@ def build_pool(case, p1):
             weight *= 2.0
         if share < 0.15:
             weight *= 0.15
-        pool.append((day, weight))
-    return pool
+        pool.append((comparable["name"], day, weight))
+    pool.sort(key=lambda item: item[0])
+    return [(day, weight) for _, day, weight in pool]
 
 
 def weighted_quantile(values, tau):
@@ -118,6 +119,7 @@ def forecast_case(case):
             median = qs[2]
             adjusted = [median + (q - median) * 0.85 for q in qs]
             quantiles = sorted(round2(p1 * math.exp(q)) for q in adjusted)
+        quantiles = [max(1, min(1000000000, q)) for q in quantiles]
         hours.append({"hour": hour, "q": quantiles})
     return {"hours": hours}
 
